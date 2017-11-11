@@ -1,0 +1,80 @@
+version: '3.3'
+
+networks:
+  log-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/8
+
+services:
+
+  zookeeper-node-1:
+    image: zookeeper:3.4.10
+    restart: always
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper-node-1:2888:3888 server.2=zookeeper-node-2:2888:3888 server.3=zookeeper-node-3:2888:3888
+    networks:
+      log-network:
+        aliases:
+          - zookeeper-node-1
+    ports:
+      - "2181:2181"
+  zookeeper-node-2:
+    image: zookeeper:3.4.10
+    restart: always
+    environment:
+      ZOO_MY_ID: 2
+      ZOO_SERVERS: server.1=zookeeper-node-1:2888:3888 server.2=zookeeper-node-2:2888:3888 server.3=zookeeper-node-3:2888:3888
+    networks:
+      log-network:
+        aliases:
+          - zookeeper-node-2
+  zookeeper-node-3:
+    image: zookeeper:3.4.10
+    restart: always
+    environment:
+      ZOO_MY_ID: 3
+      ZOO_SERVERS: server.1=zookeeper-node-1:2888:3888 server.2=zookeeper-node-2:2888:3888 server.3=zookeeper-node-3:2888:3888
+    networks:
+      log-network:
+        aliases:
+          - zookeeper-node-3
+
+  kafka-node-1:
+    build: ./kafka
+    restart: always
+    volumes:
+      - ./kafka/node-1:/config:ro
+    networks:
+      log-network:
+        aliases:
+          - kafka-node-1
+  kafka-node-2:
+    build: ./kafka
+    restart: always
+    volumes:
+      - ./kafka/node-2:/config:ro
+    networks:
+      log-network:
+        aliases:
+          - kafka-node-2
+  kafka-node-3:
+    build: ./kafka
+    restart: always
+    volumes:
+      - ./kafka/node-3:/config:ro
+    networks:
+      log-network:
+        aliases:
+          - kafka-node-3
+  
+  producer:
+    build: ./producer
+    restart: always
+    networks:
+      log-network:
+        aliases:
+          - producer
