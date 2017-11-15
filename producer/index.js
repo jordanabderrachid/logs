@@ -1,5 +1,3 @@
-const util = require("util");
-
 const kafka = require("kafka-node");
 const uuid = require("uuid/v4");
 
@@ -17,10 +15,17 @@ producer.on("ready", () => {
     setInterval(emitToKafka, 1000);
 });
 
+const generateMessage = function () {
+    return JSON.stringify({
+        process: "generate_noise",
+        id: uuid()
+    });
+}
+
 const generatePayload = function() {
     return [{
         topic: "logs",
-        message: util.format("process='generate_noise', id='%s'", uuid()),
+        messages: generateMessage(),
         timestamp: Date.now()
     }];
 }
@@ -29,9 +34,6 @@ const emitToKafka = function () {
     producer.send(generatePayload(), (err, data) => {
         if (err) {
             console.log("failed to emit to kafka", err)
-            return
         }
-
-        console.log("emitted to kafka", data)
     });
 };

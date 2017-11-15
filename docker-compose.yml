@@ -71,10 +71,34 @@ services:
         aliases:
           - kafka-node-3
   
-  producer:
+  producer-node-1:
     build: ./producer
     restart: always
     networks:
       log-network:
         aliases:
-          - producer
+          - producer-node-1
+  producer-node-2:
+    build: ./producer
+    restart: always
+    networks:
+      log-network:
+        aliases:
+          - producer-node-2
+  producer-node-3:
+    build: ./producer
+    restart: always
+    networks:
+      log-network:
+        aliases:
+          - producer-node-3
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:5.6.4
+    restart: always
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    networks:
+      log-network:
+        aliases:
+          - logstash
